@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { API_URL } from "../services/api";
 
 const SubmitIncident = () => {
@@ -8,13 +7,19 @@ const SubmitIncident = () => {
 
   const handleSubmit = async () => {
     try {
-      await axios.post(
-        `${API_URL}/incidents/submit`,
-        { description, location },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
+      const response = await fetch(`${API_URL}/incidents/submit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ description, location }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
       alert("Incident submitted successfully");
     } catch (error) {
       alert("Submission failed");
