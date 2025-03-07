@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { API_URL } from "./api";
+import { API_URL } from "./Api";
 
 const RegisterLogin = ({ setToken }) => {
   const [username, setUsername] = useState("");

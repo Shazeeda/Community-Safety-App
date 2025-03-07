@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { API_URL } from "./api";
+import { API_URL } from "../services/api";
+
+const fetchIncidents = async () => {
+  return [
+    { id: 1, description: "Suspicious activity near park" },
+    { id: 2, description: "Missing cell phone" },
+  ];
+};
 
 const IncidentList = () => {
   const [incidents, setIncidents] = useState([]);
@@ -39,14 +46,13 @@ const IncidentList = () => {
 };
 
 const deleteIncident = (id) => {
-  axios.delete(`${API_URL}/incidents/${id}`)
+  axios
+    .delete(`${API_URL}/incidents/${id}`)
     .then(() => {
       alert("Incident deleted successfully");
       window.location.reload();
     })
-    .catch(error => console.error(error));
+    .catch((error) => console.error(error));
 };
-
-
 
 export default IncidentList;
