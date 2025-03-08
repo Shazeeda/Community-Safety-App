@@ -1,20 +1,19 @@
-import React, { useState } from "react";
-import RegisterLogin from "../components/RegisterLogin";
-import SubmitIncident from "../components/SubmitIncident";
-import IncidentList from "../components/IncidentList";
-
-
 const API_URL = 'http://localhost:3001';
 
-const App = () => {
-  const [token, setToken] = useState(localStorage.getItem("token") || "");
-
-  export const api = {
-    get: async (endpoint) => {
+const api = {
+  get: async (endpoint) => {
+    try {
       const res = await fetch(`${API_URL}${endpoint}`);
-      return res.json();
-    },
-    post: async (endpoint, data) => {
+      if (!res.ok) throw new Error("Failed to fetch data");
+      return await res.json();
+    } catch (error) {
+      console.error("API GET error:", error);
+      return { error: error.message };
+    }
+  },
+
+  post: async (endpoint, data) => {
+    try {
       const res = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: {
@@ -23,18 +22,30 @@ const App = () => {
         },
         body: JSON.stringify(data),
       });
-      return res.json();
-    },
-    delete: async (endpoint) => {
+      if (!res.ok) throw new Error("Failed to send data");
+      return await res.json();
+    } catch (error) {
+      console.error("API POST error:", error);
+      return { error: error.message };
+    }
+  },
+
+  delete: async (endpoint) => {
+    try {
       const res = await fetch(`${API_URL}${endpoint}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token') || ''}`
         }
       });
-      return res.json();
-    },
-    
-  };
-  
-  export default api;
+      if (!res.ok) throw new Error("Failed to delete data");
+      return await res.json();
+    } catch (error) {
+      console.error("API DELETE error:", error);
+      return { error: error.message };
+    }
+  }
+};
+
+
+export default api;
