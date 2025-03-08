@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { API_URL } from "./services/api";
+import { api } from './services/api';  
+
 
 const SubmitIncident = () => {
   const [description, setDescription] = useState("");

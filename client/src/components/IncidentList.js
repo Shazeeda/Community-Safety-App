@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { API_URL } from "./services/api";
+import { api } from './services/api'; 
 
 const IncidentList = () => {
   const [incidents, setIncidents] = useState([]);

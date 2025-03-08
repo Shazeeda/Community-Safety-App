@@ -1,31 +1,23 @@
 import React from 'react';
-import Header from './components/Header';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './components/Home';
+import Signup from './components/Signup';
+import Login from './components/Login';
 import IncidentList from './components/IncidentList';
 import SubmitIncident from './components/SubmitIncident';
-import Login from './components/Login';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
-const App = () => {
+function App() {
   return (
-    <Router>
-      <div>
-        <Header /> 
-        <main>
-          <Switch>
-            <Route path="/" exact>
-              <IncidentList /> 
-            </Route>
-            <Route path="/report">
-              <SubmitIncident /> 
-            </Route>
-            <Route path="/login">
-              <Login /> 
-            </Route>
-          </Switch>
-        </main>
-      </div>
-    </Router>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/incidents" element={<IncidentList />} />
+        <Route path="/submit" element={<SubmitIncident />} />
+      </Routes>
+    </BrowserRouter>
   );
-};
+}
 
 export default App;
