@@ -1,39 +1,57 @@
 import React, { useEffect, useState } from "react";
-import { api } from './services/api'; 
+import { api } from '../services/api'; 
 
 const IncidentList = () => {
   const [incidents, setIncidents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/incidents`)
-      .then((response) => response.json())
-      .then((data) => setIncidents(data))
-      .catch((error) => console.error("Fetch error:", error));
+    const fetchIncidents = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/incidents');
+
+        if (!response || !Array.isArray(response)) {
+          throw new Error("Unexpected response format");
+        }
+
+        setIncidents(response);
+      } catch (error) {
+        console.error("Error fetching incidents:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchIncidents();
   }, []);
 
-  const handleDelete = (id) => {
-    fetch(`${API_URL}/incidents/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-      .then((response) => response.json())
-      .then(() => setIncidents(incidents.filter((incident) => incident.id !== id)))
-      .catch((error) => alert("Not authorized to delete this incident"));
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/incidents/${id}`);
+      setIncidents((prevIncidents) => prevIncidents.filter(i => i.id !== id));
+    } catch (error) {
+      console.error("Error deleting incident:", error);
+    }
   };
 
   return (
     <div>
       <h2>Reported Incidents</h2>
-      <ul>
-        {incidents.map((incident) => (
-          <li key={incident.id}>
-            {incident.description} - {incident.location}
-            <button onClick={() => handleDelete(incident.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      {loading ? (
+        <p>Loading incidents...</p>
+      ) : incidents.length === 0 ? (
+        <p>No incidents reported yet.</p>
+      ) : (
+        <ul>
+          {incidents.map((incident) => (
+            <li key={incident.id}>
+              {incident.description} - {incident.location}
+              <button onClick={() => handleDelete(incident.id)}>Delete</button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
