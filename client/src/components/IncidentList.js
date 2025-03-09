@@ -12,6 +12,7 @@ const IncidentList = () => {
       try {
         setLoading(true);
         const response = await api.get('/incidents');
+console.log(response)
 
         if (!response || !Array.isArray(response)) {
           throw new Error("Unexpected response format");
