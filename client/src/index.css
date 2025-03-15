@@ -1,6 +1,6 @@
 body {
   font-family: 'Arial', sans-serif;
-  background: url('https://images.unsplash.com/photo-1533106497172-9d40b5a4b251') no-repeat center center fixed;
+  background: url('https://images.unsplash.com/photo-1533106497172-9d40b5a4b251');
   background-size: cover; /* Cover entire screen */
   color: #ffffff;
   margin: 0;
