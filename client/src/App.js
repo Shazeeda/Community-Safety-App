@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 // import Home from './components/Home';
-// import Signup from './components/Signup';
-import Login from './components/Login';
+import Register from './components/Register';
+import RegisterLogin from './components/RegisterLogin';
 import IncidentList from './components/IncidentList';
 import SubmitIncident from './components/SubmitIncident';
 import Header from './components/header';
@@ -15,10 +15,11 @@ function App() {
 
       <Routes>
         {/* <Route path="/" element={<Home />} /> */}
-        {/* <Route path="/signup" element={<Signup />} /> */}
-        <Route path="/login" element={<Login />} />
+        
+        <Route path="/login" element={<RegisterLogin />} />
         <Route path="/incidents" element={<IncidentList />} />
         <Route path="/submit" element={<SubmitIncident />} />
+        <Route path="/register" element={<Register/>} />
       </Routes>
     </BrowserRouter>
   );
