@@ -7,8 +7,8 @@ const Header = () => {
       <h1>Community Safety App</h1>
       <nav>
         <ul>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/report">Report Incident</Link></li>
+          <li><Link to="/incidents">Home</Link></li>
+          <li><Link to="/submit">Submit Incident</Link></li>
           <li><Link to="/login">Login</Link></li>
         </ul>
       </nav>
