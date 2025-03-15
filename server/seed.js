@@ -38,6 +38,27 @@ async function seedDatabase() {
   try {
     console.log("Seeding database...");
 
+    const SQL = `
+    DROP TABLE IF EXISTS incidents;
+    DROP TABLE IF EXISTS users;
+    
+    CREATE TABLE users(
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(300) NOT NULL
+    ); 
+    
+    CREATE TABLE incidents(
+    id SERIAL PRIMARY KEY,
+    description VARCHAR(300),
+    location VARCHAR(300),
+    created_at timestamp default current_timestamp,
+    user_id INTEGER REFERENCES users(id) NOT NULL
+    );
+    `;
+
+    await pool.query(SQL)
+    console.log("tablesCreated");
     const hashedUsers = await hashPasswords(users);
 
     for (const user of hashedUsers) {
