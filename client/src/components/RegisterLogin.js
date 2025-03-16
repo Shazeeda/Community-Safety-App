@@ -3,19 +3,21 @@ import axios from "axios";
 import { API_URL } from "../services/api.js";
 
 const RegisterLogin = ({ setToken }) => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
     try {
       const response = await axios.post(`${API_URL}/auth/login`, {
-        username,
+        email,
         password,
       });
+
       localStorage.setItem("token", response.data.token);
       setToken(response.data.token);
+      alert("Login successful!");
     } catch (error) {
-      alert("Login failed");
+      alert(error.response?.data?.error || "Login failed");
     }
   };
 
@@ -23,9 +25,9 @@ const RegisterLogin = ({ setToken }) => {
     <div>
       <h2>Login</h2>
       <input
-        type="text"
-        placeholder="Username"
-        onChange={(e) => setUsername(e.target.value)}
+        type="email"
+        placeholder="Email"
+        onChange={(e) => setEmail(e.target.value)}
       />
       <input
         type="password"

@@ -1,17 +1,40 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { API_URL } from '../services/api.js';
 
-const Login = () => {
+const Register = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    console.log('Logged in with:', email, password);
+
+    try {
+      const response = await axios.post(`${API_URL}/auth/signup`, {
+        username,
+        email,
+        password,
+      });
+
+      alert(response.data.message); 
+    } catch (error) {
+      alert(error.response?.data?.error || "Registration failed");
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
+    <form onSubmit={handleRegister}>
+      <h2>Register</h2>
+      <div>
+        <label>Username:</label>
+        <input 
+          type="text" 
+          value={username} 
+          onChange={(e) => setUsername(e.target.value)} 
+          required 
+        />
+      </div>
       <div>
         <label>Email:</label>
         <input 
@@ -30,9 +53,9 @@ const Login = () => {
           required 
         />
       </div>
-      <button type="submit">Login</button>
+      <button type="submit">Register</button>
     </form>
   );
 };
 
-export default Login;
+export default Register;
