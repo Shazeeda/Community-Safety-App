@@ -14,7 +14,6 @@ const authenticateUser = (req, res, next) => {
     next();
   });
 };
-
 router.post("/submit", authenticateUser, async (req, res) => {
   const { description, location } = req.body;
   try {

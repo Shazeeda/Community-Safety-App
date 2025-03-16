@@ -1,73 +1,70 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const pool = require('../db'); 
+const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const pool = require("../db");
 const router = express.Router();
-require('dotenv').config();
-const JWT_SECRET = process.env.JWT_SECRET || 'safety_app_secret'; 
+require("dotenv").config();
 
-router.post('/signup', async (req, res) => {
-  const { email, password } = req.body;
+const JWT_SECRET = process.env.JWT_SECRET || "safety_app";
 
+router.post("/signup", async (req, res) => {
   try {
-    console.log("Signup request received:", { email, password });
+    const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (userExists.rows.length > 0) {
+    const existingUser = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
+    if (existingUser.rows.length > 0) {
       return res.status(400).json({ error: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await pool.query(
-      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email',
+      "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email",
       [email, hashedPassword]
     );
 
-    console.log("User registered successfully:", newUser.rows[0]);
-    res.status(201).json({ message: "User registered successfully", user: newUser.rows[0] });
+    const token = jwt.sign({ id: newUser.rows[0].id }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
+    res.status(201).json({ message: "User registered successfully", token });
   } catch (error) {
-    console.error("Signup Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: error.message });
   }
 });
 
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
+router.post("/login", async (req, res) => {
   try {
-    console.log("Login request received:", { email });
+    const { email, password } = req.body;
 
- 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
-
-    
-    const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
     if (user.rows.length === 0) {
-      return res.status(400).json({ error: "User not found" });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
-
-    
-    const isValid = await bcrypt.compare(password, user.rows[0].password);
-    if (!isValid) {
+    const isMatch = await bcrypt.compare(password, user.rows[0].password);
+    if (!isMatch) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-  
-    const token = jwt.sign({ id: user.rows[0].id }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.rows[0].id }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     res.json({ message: "Login successful", token });
-
   } catch (error) {
-    console.error("Login Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: error.message });
   }
 });
 

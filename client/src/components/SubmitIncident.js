@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { api } from '../services/api';  
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
-
+import { api } from "../services/api";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
 const SubmitIncident = () => {
   const [description, setDescription] = useState("");
@@ -9,22 +8,28 @@ const SubmitIncident = () => {
 
   const handleSubmit = async () => {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/incidents/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ description, location }),
+        body: JSON.stringify({ title, description }),
       });
 
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+      if (response.status === 403) {
+        alert("You need to be logged in to submit an incident.");
       }
 
-      alert("Incident submitted successfully");
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      alert("Incident submitted successfully!");
     } catch (error) {
-      alert("Submission failed");
+      alert(error.message);
     }
   };
 
