@@ -42,15 +42,10 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
-  }
-
   try {
     const user = await pool.query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
-
     if (user.rows.length === 0) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -59,12 +54,11 @@ router.post("/login", async (req, res) => {
     if (!validPassword) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
-
     res.json({ message: "Login successful" });
   } catch (err) {
+    console.error("Login Error:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 
 module.exports = router;

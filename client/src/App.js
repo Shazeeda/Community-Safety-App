@@ -6,6 +6,7 @@ import RegisterLogin from './components/RegisterLogin';
 import IncidentList from './components/IncidentList';
 import SubmitIncident from './components/SubmitIncident';
 import Header from './components/header';
+import dashboard from "./components/dashboard";
 
 function App() {
   return (

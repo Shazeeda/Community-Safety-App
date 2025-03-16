@@ -6,44 +6,51 @@ const RegisterLogin = ({ setToken }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMessage("");
+
     try {
       const response = await axios.post(`${API_URL}/auth/login`, {
         email,
         password,
       });
-  
-      alert(response.data.message); 
+
+      alert("Login successful");
+      localStorage.setItem("token", response.data.token); // Store the JWT token
+      navigate("/dashboard"); // Redirect to the dashboard page
     } catch (error) {
       setErrorMessage(error.response?.data?.error || "Login failed");
     }
   };
-  
 
   return (
-    <div>
+    <form onSubmit={handleLogin}>
       <h2>Login</h2>
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      <input
-        type="email"
-        placeholder="Email"
-        value={email} 
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password} 
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-      <button onClick={handleLogin}>Login</button>
-    </div>
+      <div>
+        <label>Email:</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <label>Password:</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+      </div>
+      <button type="submit">Login</button>
+    </form>
   );
 };
 
-export default RegisterLogin;
+export default Login;
