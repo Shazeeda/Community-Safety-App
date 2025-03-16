@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { API_URL } from "../services/api.js";
+import { API_URL } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
-const RegisterLogin = ({ setToken }) => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -11,18 +12,18 @@ const RegisterLogin = ({ setToken }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-
     try {
       const response = await axios.post(`${API_URL}/auth/login`, {
         email,
         password,
       });
 
-      alert("Login successful");
-      localStorage.setItem("token", response.data.token); // Store the JWT token
-      navigate("/dashboard"); // Redirect to the dashboard page
+      if (response.status === 200) {
+        alert("Login successful");
+        navigate("/dashboard");
+      }
     } catch (error) {
-      setErrorMessage(error.response?.data?.error || "Login failed");
+      setErrorMessage(error.response?.data?.error || "Invalid credentials");
     }
   };
 
@@ -53,4 +54,4 @@ const RegisterLogin = ({ setToken }) => {
   );
 };
 
-export default Login;
+export default RegisterLogin;
