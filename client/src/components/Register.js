@@ -10,6 +10,7 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setErrorMessage("");
+
     try {
       const response = await axios.post(`${API_URL}/auth/signup`, {
         email,
@@ -17,8 +18,14 @@ const Register = () => {
       });
 
       alert(response.data.message);
+
+      setEmail("");
+      setPassword("");
     } catch (error) {
-      setErrorMessage(error.response?.data?.error || "Registration failed");
+      console.error("Registration error:", error);
+      setErrorMessage(
+        error.response?.data?.error || "Registration failed. Please try again."
+      );
     }
   };
 

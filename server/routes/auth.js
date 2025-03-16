@@ -28,7 +28,8 @@ router.post("/signup", async (req, res) => {
       "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email",
       [email, hashedPassword]
     );
-
+    console.log("Inserted user:", result.rows[0]); 
+    
     res
       .status(201)
       .json({ message: "User registered successfully", user: result.rows[0] });
