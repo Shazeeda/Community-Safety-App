@@ -7,21 +7,21 @@ const RegisterLogin = ({ setToken }) => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleLogin = async () => {
-    setErrorMessage(""); 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setErrorMessage("");
     try {
       const response = await axios.post(`${API_URL}/auth/login`, {
         email,
         password,
       });
-
-      localStorage.setItem("token", response.data.token);
-      setToken(response.data.token);
-      alert("Login successful!");
+  
+      alert(response.data.message); 
     } catch (error) {
-      setErrorMessage(error.response?.data?.error || "Login failed. Please try again.");
+      setErrorMessage(error.response?.data?.error || "Login failed");
     }
   };
+  
 
   return (
     <div>
