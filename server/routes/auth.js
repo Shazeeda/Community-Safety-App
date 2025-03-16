@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "safety_app";
 require("dotenv").config();
 
 router.post("/signup", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { email, password } = req.body;
 
   try {
     const userExists = await pool.query(
@@ -22,15 +22,16 @@ router.post("/signup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await pool.query(
-      "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email",
-      [username, email, hashedPassword]
+      "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email",
+      [email, hashedPassword]
     );
 
     res
       .status(201)
       .json({ message: "User registered successfully", user: newUser.rows[0] });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error("Signup Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
