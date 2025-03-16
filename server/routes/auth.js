@@ -19,6 +19,7 @@ router.post("/signup", async (req, res) => {
       "SELECT * FROM users WHERE email = $1",
       [email]
     );
+
     if (existingUser.rows.length > 0) {
       return res.status(400).json({ error: "Email already in use" });
     }
@@ -28,12 +29,12 @@ router.post("/signup", async (req, res) => {
       "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email",
       [email, hashedPassword]
     );
-    console.log("Inserted user:", result.rows[0]); 
-    
+
     res
       .status(201)
       .json({ message: "User registered successfully", user: result.rows[0] });
   } catch (err) {
+    console.error("Database error:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

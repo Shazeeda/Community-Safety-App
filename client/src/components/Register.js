@@ -16,6 +16,7 @@ const Register = () => {
         email,
         password,
       });
+      
 
       alert(response.data.message);
 
