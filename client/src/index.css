@@ -1,6 +1,6 @@
 body {
   font-family: 'Arial', sans-serif;
-  background: url('https://images.prismic.io/bounce/25d3eb00-b68a-4da9-b0bb-741ba06ee64f_matteo-modica-bYeP6FyXDiY-unsplash+%281%29.jpg?auto=format%2Ccompress&w=1466&fit=crop&ar=3%3A2')
+  background: url('https://as2.ftcdn.net/v2/jpg/02/12/16/24/1000_F_212162434_zlWehKoUrb9Z3dfScx0Yd2hSZfXZGnGS.jpg')
     no-repeat center center fixed;
   background-size: cover;
   color: #ffffff;
@@ -8,6 +8,23 @@ body {
   padding: 0;
   line-height: 1.6;
 }
+
+/* Dark Overlay to Improve Text Visibility */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Dark overlay effect */
+  z-index: -1;
+}
+
+/* Header & Navigation */
+header {
+  background-color: rgba(0, 0, 0, 0.8);
+
 
 
 body::before {
