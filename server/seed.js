@@ -2,9 +2,9 @@ const pool = require("./db");
 const bcrypt = require("bcryptjs");
 
 const users = [
-  { username: "admin", email: "admin@example.com", password: "Admin123" },
-  { username: "john", email: "john@example.com", password: "John123" },
-  { username: "jane", email: "jane@example.com", password: "Jane123" },
+  { email: "sara@example.com", password: "Sara123" },
+  { email: "john@example.com", password: "John123" },
+  { email: "jane@example.com", password: "Jane123" },
 ];
 
 const incidents = [
@@ -28,7 +28,6 @@ const incidents = [
 async function hashPasswords(users) {
   return Promise.all(
     users.map(async (user) => ({
-      username: user.username,
       email: user.email,
       password: await bcrypt.hash(user.password, 10),
     }))
@@ -42,14 +41,13 @@ async function seedDatabase() {
     const SQL = `
     DROP TABLE IF EXISTS incidents;
     DROP TABLE IF EXISTS users;
-
+    
     CREATE TABLE users (
       id SERIAL PRIMARY KEY,
-      username VARCHAR(50) NOT NULL UNIQUE,
       email VARCHAR(255) UNIQUE NOT NULL,
       password VARCHAR(300) NOT NULL
-    );
-
+    ); 
+    
     CREATE TABLE incidents (
       id SERIAL PRIMARY KEY,
       description VARCHAR(300),
@@ -64,18 +62,12 @@ async function seedDatabase() {
 
     const hashedUsers = await hashPasswords(users);
 
-  
     for (const user of hashedUsers) {
       await pool.query(
-        "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id",
-        [user.username, user.email, user.password]
+        "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id",
+        [user.email, user.password]
       );
     }
-
-    await pool.query(`
-      INSERT INTO users (username, email, password) VALUES
-      ('testuser', 'test@example.com', '$2b$10$abc123hashedpassword');
-    `);
 
     for (const incident of incidents) {
       await pool.query(
@@ -83,6 +75,11 @@ async function seedDatabase() {
         [incident.user_id, incident.description, incident.location]
       );
     }
+
+    await pool.query(`
+      INSERT INTO users (email, password) VALUES
+      ('test@example.com', '$2b$10$abc123hashedpassword');
+    `);
 
     console.log("Seeding complete!");
   } catch (err) {
