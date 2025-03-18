@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { API_URL } from "../services/api.js";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -16,10 +18,9 @@ const Register = () => {
         email,
         password,
       });
-      
 
       alert(response.data.message);
-
+      navigate("/dashboard");
       setEmail("");
       setPassword("");
     } catch (error) {

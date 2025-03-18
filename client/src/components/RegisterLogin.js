@@ -3,7 +3,7 @@ import axios from "axios";
 import { API_URL } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const RegisterLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
