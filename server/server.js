@@ -16,6 +16,7 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/incidents', incidentRoutes);
 app.use('/search', searchRoutes);
+app.use("/api/incidents", incidentRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server is running!");
