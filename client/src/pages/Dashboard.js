@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../services/api";
 import { useNavigate } from "react-router-dom";
-import Incident from "../components/Incident";
+import IncidentList from '../components/IncidentList';
 
 const Dashboard = () => {
   const navigate = useNavigate();
