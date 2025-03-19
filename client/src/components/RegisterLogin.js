@@ -23,7 +23,6 @@ const RegisterLogin = () => {
       });
 
       const data = await response.json();
-      console.log("Login Response:", data);
 
       if (response.ok && data.token) {
         localStorage.setItem("token", data.token);

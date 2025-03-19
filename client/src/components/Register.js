@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { API_URL } from "../services/api.js";
 import { useNavigate } from "react-router-dom";
 
@@ -14,20 +13,29 @@ const Register = () => {
     setErrorMessage("");
 
     try {
-      const response = await axios.post(`${API_URL}/auth/signup`, {
-        email,
-        password,
+      const response = await fetch(`${API_URL}/auth/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      alert(response.data.message);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Registration failed.");
+      }
+
+      const data = await response.json();
+
+      alert(data.message || "Registration successful!");
       navigate("/dashboard");
+
       setEmail("");
       setPassword("");
     } catch (error) {
       console.error("Registration error:", error);
-      setErrorMessage(
-        error.response?.data?.error || "Registration failed. Please try again."
-      );
+      setErrorMessage(error.message);
     }
   };
 
