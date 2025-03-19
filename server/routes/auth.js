@@ -99,7 +99,6 @@ router.post("/login", async (req, res) => {
 });
 
 
-
 router.get("/protected", authenticateUser, (req, res) => {
   res.json({ message: "You have accessed a protected route", user: req.user });
 });

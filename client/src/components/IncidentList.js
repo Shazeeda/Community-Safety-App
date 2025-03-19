@@ -59,18 +59,34 @@ const Incident = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const deleteIncident = async (id) => {
+    if (!id) {
+      console.error("Error: Incident ID is missing");
+      return;
+    }
+  
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API_URL}/incidents/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(`${API_URL}/incidents/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
-      fetchIncidents();
-    } catch (err) {
-      console.error("Error deleting incident:", err);
-      setError("Failed to delete incident.");
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete incident.");
+      }
+  
+      alert("Incident deleted successfully!");
+      setIncidents(incidents.filter((incident) => incident.id !== id));
+    } catch (error) {
+      console.error("Error deleting incident:", error);
+      alert("Failed to delete incident.");
     }
   };
+  
 
   const handleEdit = (incident) => {
     setTitle(incident.title);
@@ -143,19 +159,15 @@ const Incident = () => {
         <p>No incidents reported yet.</p>
       ) : (
         <ul>
-          {incidents.map((incident) => (
-            <li key={incident._id}>
-              <strong>{incident.title}</strong>
-              <p>{incident.description}</p>
-              <p>
-                <em>Location:</em> {incident.location} | <em>Date:</em>{" "}
-                {incident.date}
-              </p>
-              <button onClick={() => handleEdit(incident)}>Edit</button>
-              <button onClick={() => handleDelete(incident._id)}>Delete</button>
-            </li>
-          ))}
-        </ul>
+        {incidents.map((incident) => (
+          <li key={incident.id}> 
+            <strong>{incident.title}</strong> - {incident.location} ({incident.date})
+            <p>{incident.description}</p>
+            <button onClick={() => deleteIncident(incident.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+      
       )}
     </div>
   );
