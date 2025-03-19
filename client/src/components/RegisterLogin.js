@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { API_URL } from "../services/api";
 import { useNavigate } from "react-router-dom";
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
 const RegisterLogin = () => {
   const [email, setEmail] = useState("");
@@ -12,18 +12,33 @@ const RegisterLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMessage("");
+
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, {
-        email,
-        password,
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (response.status === 200) {
-        alert("Login successful");
-        navigate("/dashboard");
+      const data = await response.json();
+      console.log("📢 Login Response from Server:", data);
+
+      if (response.ok) {
+        if (data.token) {
+          console.log("Token Received:", data.token);
+          localStorage.setItem("token", data.token);
+          alert("Login successful");
+          navigate("/dashboard");
+        } else {
+          throw new Error("No token received from server.");
+        }
+      } else {
+        throw new Error(data.error || "Invalid credentials");
       }
     } catch (error) {
-      setErrorMessage(error.response?.data?.error || "Invalid credentials");
+      setErrorMessage(error.message);
     }
   };
 

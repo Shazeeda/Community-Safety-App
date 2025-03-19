@@ -1,6 +1,6 @@
 body {
-  font-family: 'Arial', sans-serif;
-  background: url('https://as2.ftcdn.net/v2/jpg/02/12/16/24/1000_F_212162434_zlWehKoUrb9Z3dfScx0Yd2hSZfXZGnGS.jpg')
+  font-family: "Arial", sans-serif;
+  background: url("https://as2.ftcdn.net/v2/jpg/02/12/16/24/1000_F_212162434_zlWehKoUrb9Z3dfScx0Yd2hSZfXZGnGS.jpg")
     no-repeat center center fixed;
   background-size: cover;
   color: #ffffff;
@@ -16,7 +16,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6); 
+  background: rgba(0, 0, 0, 0.6);
   z-index: -1;
 }
 
@@ -54,10 +54,12 @@ nav ul li a {
   transition: color 0.3s ease-in-out;
 }
 
+nav ul li a:focus,
 nav ul li a:hover {
   color: #ff4d00;
+  outline: 2px solid #ff4d00;
+  outline-offset: 2px;
 }
-
 main {
   padding: 40px;
   max-width: 900px;
@@ -75,7 +77,8 @@ form {
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
-form textarea, form input {
+form textarea,
+form input {
   width: 100%;
   padding: 12px;
   font-size: 1rem;
@@ -84,6 +87,12 @@ form textarea, form input {
   border-radius: 5px;
   background: #262626;
   color: #ffffff;
+}
+
+form input:focus,
+form textarea:focus {
+  outline: 2px solid #ff4d00;
+  background: #333333;
 }
 
 form button {
@@ -98,8 +107,11 @@ form button {
   transition: background 0.3s ease-in-out;
 }
 
-form button:hover {
+form button:hover,
+form button:focus {
   background-color: #ff2200;
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
 }
 
 footer {
@@ -111,4 +123,79 @@ footer {
   width: 100%;
   bottom: 0;
   font-size: 0.9rem;
+}
+@media screen and (max-width: 768px) {
+  header {
+    font-size: 1.5rem;
+    padding: 10px;
+  }
+
+  nav {
+    padding: 10px;
+  }
+
+  nav ul {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  nav ul li {
+    margin: 10px 0;
+  }
+
+  main {
+    padding: 20px;
+    width: 90%;
+  }
+
+  form {
+    padding: 15px;
+  }
+
+  form input,
+  form textarea {
+    font-size: 0.9rem;
+  }
+
+  form button {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  footer {
+    font-size: 0.8rem;
+    padding: 15px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  header {
+    font-size: 1.3rem;
+    padding: 8px;
+  }
+
+  nav ul {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  main {
+    padding: 15px;
+    width: 95%;
+  }
+
+  form input,
+  form textarea {
+    font-size: 0.8rem;
+  }
+
+  form button {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+
+  footer {
+    font-size: 0.7rem;
+    padding: 12px;
+  }
 }

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { API_URL } from "../services/api";
 import { useNavigate } from "react-router-dom";
-import IncidentList from '../components/IncidentList';
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -14,150 +13,144 @@ const Dashboard = () => {
   });
   const [incidents, setIncidents] = useState([]);
   const [error, setError] = useState("");
-  const [editMode, setEditMode] = useState(false);
-  const [editId, setEditId] = useState(null);
 
+  
+  const getToken = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("Session expired. Please log in again.");
+      return null;
+    }
+    return token;
+  };
+
+  
   useEffect(() => {
     const fetchIncidents = async () => {
+      const token = getToken();
+      if (!token) {
+        navigate("/login"); 
+        return;
+      }
+
       try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`${API_URL}/incidents`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await fetch(`${API_URL}/incidents`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         });
-        setIncidents(response.data);
+
+        if (response.ok) {
+          const data = await response.json();
+          setIncidents(data);
+        } else if (response.status === 401 || response.status === 403) {
+          setError("Session expired. Please log in again.");
+          localStorage.removeItem("token"); 
+          navigate("/login");
+        } else {
+          throw new Error("Failed to fetch incidents.");
+        }
       } catch (error) {
-        console.error("Error fetching incidents:", error);
+        setError(error.message);
       }
     };
 
     fetchIncidents();
-  }, []);
+  }, [navigate]);
 
+  
   const handleChange = (e) => {
     setIncident({ ...incident, [e.target.name]: e.target.value });
   };
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    try {
-      const token = localStorage.getItem("token");
-
-      if (editMode) {
-        await axios.put(`${API_URL}/incidents/${editId}`, incident, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setIncidents(
-          incidents.map((inc) =>
-            inc.id === editId ? { ...inc, ...incident } : inc
-          )
-        );
-
-        setEditMode(false);
-        setEditId(null);
-        alert("Incident updated successfully!");
-      } else {
-        const response = await axios.post(`${API_URL}/incidents`, incident, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setIncidents([response.data, ...incidents]);
-        alert("Incident reported successfully!");
-      }
-
-      setIncident({ title: "", description: "", location: "", date: "" });
-    } catch (error) {
-      setError(error.response?.data?.error || "Failed to report incident.");
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this incident?"))
+    const token = getToken();
+    if (!token) {
+      navigate("/login");
       return;
+    }
 
     try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`${API_URL}/incidents/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(`${API_URL}/incidents`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(incident),
       });
 
-      setIncidents(incidents.filter((inc) => inc.id !== id));
-      alert("Incident deleted successfully!");
+      if (response.ok) {
+        const data = await response.json();
+        setIncidents([...incidents, data]); 
+        setIncident({ title: "", description: "", location: "", date: "" });
+      } else if (response.status === 401 || response.status === 403) {
+        setError("Session expired. Please log in again.");
+        localStorage.removeItem("token");
+        navigate("/login");
+      } else {
+        throw new Error("Failed to submit incident.");
+      }
     } catch (error) {
-      console.error("Error deleting incident:", error);
-      setError("Failed to delete incident.");
+      setError(error.message);
     }
-  };
-
-  const handleEdit = (incident) => {
-    setIncident(incident);
-    setEditMode(true);
-    setEditId(incident.id);
   };
 
   return (
     <div>
       <h1>Dashboard</h1>
-      <h2>{editMode ? "Edit Incident" : "Report an Incident"}</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
+
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Title:</label>
-          <input
-            type="text"
-            name="title"
-            value={incident.title}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Description:</label>
-          <textarea
-            name="description"
-            value={incident.description}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Location:</label>
-          <input
-            type="text"
-            name="location"
-            value={incident.location}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Date:</label>
-          <input
-            type="date"
-            name="date"
-            value={incident.date}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit">
-          {editMode ? "Update Incident" : "Submit Incident"}
-        </button>
+        <input
+          type="text"
+          name="title"
+          value={incident.title}
+          onChange={handleChange}
+          placeholder="Incident Title"
+          required
+        />
+        <textarea
+          name="description"
+          value={incident.description}
+          onChange={handleChange}
+          placeholder="Description"
+          required
+        />
+        <input
+          type="text"
+          name="location"
+          value={incident.location}
+          onChange={handleChange}
+          placeholder="Location"
+          required
+        />
+        <input
+          type="date"
+          name="date"
+          value={incident.date}
+          onChange={handleChange}
+          required
+        />
+        <button type="submit">Submit Incident</button>
       </form>
 
-      <h2>Your Reported Incidents</h2>
+      <h2>Reported Incidents</h2>
       {incidents.length === 0 ? (
         <p>No incidents reported yet.</p>
       ) : (
         <ul>
           {incidents.map((inc) => (
-            <li key={inc.id}>
+            <li key={inc.id || inc.title + inc.date}>
               <strong>{inc.title}</strong> - {inc.location} ({inc.date})
               <p>{inc.description}</p>
-              <button onClick={() => handleEdit(inc)}>Edit</button>
-              <button onClick={() => handleDelete(inc.id)}>Delete</button>
             </li>
           ))}
         </ul>
