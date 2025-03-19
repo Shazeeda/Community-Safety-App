@@ -69,9 +69,7 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
 
     if (user.rows.length === 0) {
       return res.status(401).json({ error: "Invalid credentials" });
@@ -82,20 +80,24 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    
     const token = jwt.sign(
       { id: user.rows[0].id, email },
       process.env.JWT_SECRET || "safety_app",
       { expiresIn: "1h" }
     );
 
-    console.log("Generated Token:", token); 
+    res.json({
+      message: "Login successful",
+      token, 
+    });
 
-    res.json({ message: "Login successful", token });
   } catch (err) {
     console.error("Login Error:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 
 router.get("/protected", authenticateUser, (req, res) => {

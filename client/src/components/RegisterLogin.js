@@ -23,19 +23,14 @@ const RegisterLogin = () => {
       });
 
       const data = await response.json();
-      console.log("📢 Login Response from Server:", data);
+      console.log("Login Response:", data);
 
-      if (response.ok) {
-        if (data.token) {
-          console.log("Token Received:", data.token);
-          localStorage.setItem("token", data.token);
-          alert("Login successful");
-          navigate("/dashboard");
-        } else {
-          throw new Error("No token received from server.");
-        }
+      if (response.ok && data.token) {
+        localStorage.setItem("token", data.token);
+        alert("Login successful");
+        navigate("/dashboard");
       } else {
-        throw new Error(data.error || "Invalid credentials");
+        throw new Error(data.error || "No token received from server.");
       }
     } catch (error) {
       setErrorMessage(error.message);
