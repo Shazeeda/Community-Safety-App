@@ -9,17 +9,19 @@ import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
-    <BrowserRouter>
+    <>
       <Header />
-      <Routes>
-        <Route path="/" element={<Navigate replace to="/dashboard" />} />
-        <Route path="/login" element={<RegisterLogin />} />
-        <Route path="/incidents" element={<IncidentList />} />
-        <Route path="/submit" element={<SubmitIncident />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
+      <main>
+        <Routes>
+          <Route path="/" element={<Navigate replace to="/dashboard" />} />
+          // <Route path="/login" element={<RegisterLogin />} />
+          // <Route path="/incidents" element={<IncidentList />} />
+          // <Route path="/submit" element={<SubmitIncident />} />
+          // <Route path="/register" element={<Register />} />
+          // <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </main>
+    </>
   );
 }
 
