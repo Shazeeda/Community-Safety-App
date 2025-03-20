@@ -8,7 +8,6 @@ const searchRoutes = require("./routes/search");
 require("dotenv").config();
 
 const app = express();
-const server = http.createServer(app);
 
 app.use(
   cors({
@@ -18,11 +17,13 @@ app.use(
     ],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
 
 app.use(express.json());
+
+app.options("*", cors());
 
 app.use("/auth", authRoutes);
 app.use("/incidents", incidentRoutes);
@@ -33,4 +34,4 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`))

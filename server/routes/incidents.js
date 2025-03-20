@@ -111,24 +111,24 @@ router.put("/:id", authenticateUser, async (req, res) => {
   }
 });
 
-router.delete("/incidents/:id", authenticateUser, async (req, res) => {
+router.delete("/:id", authenticateUser, async (req, res) => {
   const { id } = req.params;
 
   if (!id) {
-    return res.status(400).json({ error: "Incident ID is required" });
+      return res.status(400).json({ error: "Incident ID is required" });
   }
 
   try {
-    const result = await pool.query("DELETE FROM incidents WHERE id = $1 RETURNING *", [id]);
+      const result = await pool.query("DELETE FROM incidents WHERE id = $1 RETURNING *", [id]);
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Incident not found" });
-    }
+      if (result.rowCount === 0) {
+          return res.status(404).json({ error: "Incident not found" });
+      }
 
-    res.json({ message: "Incident deleted successfully" });
+      res.json({ message: "Incident deleted successfully" });
   } catch (error) {
-    console.error("Error deleting incident:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+      console.error("Error deleting incident:", error);
+      res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

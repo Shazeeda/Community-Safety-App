@@ -60,33 +60,30 @@ const Incident = () => {
   };
 
   const deleteIncident = async (id) => {
-    if (!id) {
-      console.error("Error: Incident ID is missing");
-      return;
-    }
-  
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Unauthorized - No token provided");
+      }
+
       const response = await fetch(`${API_URL}/incidents/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to delete incident.");
       }
-  
-      alert("Incident deleted successfully!");
+
       setIncidents(incidents.filter((incident) => incident.id !== id));
     } catch (error) {
       console.error("Error deleting incident:", error);
-      alert("Failed to delete incident.");
+      alert(error.message);
     }
   };
-  
 
   const handleEdit = (incident) => {
     setTitle(incident.title);
@@ -159,15 +156,16 @@ const Incident = () => {
         <p>No incidents reported yet.</p>
       ) : (
         <ul>
-        {incidents.map((incident) => (
-          <li key={incident.id}> 
-            <strong>{incident.title}</strong> - {incident.location} ({incident.date})
-            <p>{incident.description}</p>
-            <button onClick={() => deleteIncident(incident.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-      
+          {incidents.map((incident) => (
+            <li key={incident.id}>
+              <strong>{incident.title}</strong> - {incident.location} (
+              {incident.date})<p>{incident.description}</p>
+              <button onClick={() => deleteIncident(incident.id)}>
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
