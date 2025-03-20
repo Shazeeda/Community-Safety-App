@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { api } from "../services/api";
+// import { api } from "../services/api";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+const API_URL = "http://localhost:3000";
 
 const SubmitIncident = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
+  const [date, setDate] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = async () => {
@@ -26,7 +27,7 @@ const SubmitIncident = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ title, description, location }),
+        body: JSON.stringify({ title, description, location, date }),
       });
 
       const data = await response.json();
@@ -46,6 +47,7 @@ const SubmitIncident = () => {
       setTitle("");
       setDescription("");
       setLocation("");
+      setDate("");
     } catch (error) {
       setError(error.message);
     }
@@ -75,6 +77,12 @@ const SubmitIncident = () => {
         placeholder="Location"
         value={location}
         onChange={(e) => setLocation(e.target.value)}
+        required
+      />
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
         required
       />
       <button onClick={handleSubmit}>Submit</button>

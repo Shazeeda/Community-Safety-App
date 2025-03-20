@@ -68,8 +68,14 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
+
   try {
-    const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
 
     if (user.rows.length === 0) {
       return res.status(401).json({ error: "Invalid credentials" });
@@ -80,24 +86,19 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    
-    const token = jwt.sign(
-      { id: user.rows[0].id, email },
-      process.env.JWT_SECRET || "safety_app",
-      { expiresIn: "1h" }
-    );
+    const token = jwt.sign({ id: user.rows[0].id, email }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     res.json({
       message: "Login successful",
-      token, 
+      token,
     });
-
   } catch (err) {
     console.error("Login Error:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 
 router.get("/protected", authenticateUser, (req, res) => {
   res.json({ message: "You have accessed a protected route", user: req.user });

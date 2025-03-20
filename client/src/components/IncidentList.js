@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { API_URL } from "../services/api";
 
 const Incident = () => {
@@ -19,10 +18,19 @@ const Incident = () => {
   const fetchIncidents = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_URL}/incidents`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(`${API_URL}/incidents`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      setIncidents(response.data);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch incidents.");
+      }
+
+      const data = await response.json();
+      setIncidents(data);
     } catch (err) {
       console.error("Error fetching incidents:", err);
       setError("Failed to fetch incidents.");
@@ -37,18 +45,22 @@ const Incident = () => {
       const token = localStorage.getItem("token");
       const incidentData = { title, description, location, date };
 
-      if (editMode) {
-        await axios.put(
-          `${API_URL}/incidents/${editingIncidentId}`,
-          incidentData,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-      } else {
-        await axios.post(`${API_URL}/incidents`, incidentData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+      const response = await fetch(
+        editMode
+          ? `${API_URL}/incidents/${editingIncidentId}`
+          : `${API_URL}/incidents`,
+        {
+          method: editMode ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(incidentData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to submit incident.");
       }
 
       resetForm();
@@ -69,7 +81,6 @@ const Incident = () => {
       const response = await fetch(`${API_URL}/incidents/${id}`, {
         method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
@@ -91,7 +102,7 @@ const Incident = () => {
     setLocation(incident.location);
     setDate(incident.date);
     setEditMode(true);
-    setEditingIncidentId(incident._id);
+    setEditingIncidentId(incident.id);
   };
 
   const resetForm = () => {
@@ -160,6 +171,7 @@ const Incident = () => {
             <li key={incident.id}>
               <strong>{incident.title}</strong> - {incident.location} (
               {incident.date})<p>{incident.description}</p>
+              <button onClick={() => handleEdit(incident)}>Edit</button>
               <button onClick={() => deleteIncident(incident.id)}>
                 Delete
               </button>

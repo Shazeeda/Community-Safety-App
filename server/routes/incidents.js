@@ -2,8 +2,9 @@ const express = require("express");
 const pool = require("../db");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = process.env.JWT_SECRET || "safety_app";
 require("dotenv").config();
+
+const JWT_SECRET = process.env.JWT_SECRET || "safety_app";
 
 const authenticateUser = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
@@ -33,34 +34,32 @@ router.post("/", authenticateUser, async (req, res) => {
       "INSERT INTO incidents (user_id, title, description, location, date) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [req.user.id, title, description, location, date]
     );
-    res.status(201).json(result.rows[0]);
+    return res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error("Error reporting incident:", err.message);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
 router.get("/", async (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT * FROM incidents ORDER BY created_at DESC"
-    );
+    const result = await pool.query("SELECT * FROM incidents ORDER BY id DESC");
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "No incidents found" });
     }
 
-    res.json(result.rows);
+    return res.json(result.rows);
   } catch (err) {
     console.error("Database query error:", err.message);
-    res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server error" });
   }
 });
 
 router.get("/my-incidents", authenticateUser, async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM incidents WHERE user_id = $1 ORDER BY created_at DESC",
+      "SELECT * FROM incidents WHERE user_id = $1 ORDER BY id DESC",
       [req.user.id]
     );
 
@@ -70,10 +69,10 @@ router.get("/my-incidents", authenticateUser, async (req, res) => {
         .json({ error: "You have not reported any incidents" });
     }
 
-    res.json(result.rows);
+    return res.json(result.rows);
   } catch (err) {
     console.error("Database query error:", err.message);
-    res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server error" });
   }
 });
 
@@ -104,10 +103,10 @@ router.put("/:id", authenticateUser, async (req, res) => {
       [title, description, location, date, req.params.id]
     );
 
-    res.json(result.rows[0]);
+    return res.json(result.rows[0]);
   } catch (err) {
     console.error("Error updating incident:", err.message);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -115,22 +114,31 @@ router.delete("/:id", authenticateUser, async (req, res) => {
   const { id } = req.params;
 
   if (!id) {
-      return res.status(400).json({ error: "Incident ID is required" });
+    return res.status(400).json({ error: "Incident ID is required" });
   }
 
   try {
-      const result = await pool.query("DELETE FROM incidents WHERE id = $1 RETURNING *", [id]);
+    const incident = await pool.query("SELECT * FROM incidents WHERE id = $1", [
+      id,
+    ]);
 
-      if (result.rowCount === 0) {
-          return res.status(404).json({ error: "Incident not found" });
-      }
+    if (incident.rows.length === 0) {
+      return res.status(404).json({ error: "Incident not found" });
+    }
 
-      res.json({ message: "Incident deleted successfully" });
+    if (incident.rows[0].user_id !== req.user.id) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized to delete this incident" });
+    }
+
+    await pool.query("DELETE FROM incidents WHERE id = $1", [id]);
+
+    return res.json({ message: "Incident deleted successfully" });
   } catch (error) {
-      console.error("Error deleting incident:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error deleting incident:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 
 module.exports = router;

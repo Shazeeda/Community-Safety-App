@@ -23,6 +23,21 @@ const incidents = [
     description: "Streetlight not working",
     location: "5th Avenue",
   },
+  {
+    user_id: 4,
+    description: "Hit and run accident",
+    location: "Main Street & 3rd Ave",
+  },
+  {
+    user_id: 5,
+    description: "Graffiti on public property",
+    location: "City Hall Entrance",
+  },
+  {
+    user_id: 6,
+    description: "Abandoned vehicle parked for weeks",
+    location: "Residential Neighborhood - Oakwood Lane",
+  },
 ];
 
 async function hashPasswords(users) {

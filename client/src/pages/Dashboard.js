@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+const API_URL = "http://localhost:3000";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -14,10 +14,8 @@ const Dashboard = () => {
   const [incidents, setIncidents] = useState([]);
   const [error, setError] = useState("");
 
-  
   const getToken = () => {
     const token = localStorage.getItem("token");
-
     if (!token) {
       setError("Session expired. Please log in again.");
       return null;
@@ -25,12 +23,11 @@ const Dashboard = () => {
     return token;
   };
 
-  
   useEffect(() => {
     const fetchIncidents = async () => {
       const token = getToken();
       if (!token) {
-        navigate("/login"); 
+        navigate("/login");
         return;
       }
 
@@ -48,7 +45,7 @@ const Dashboard = () => {
           setIncidents(data);
         } else if (response.status === 401 || response.status === 403) {
           setError("Session expired. Please log in again.");
-          localStorage.removeItem("token"); 
+          localStorage.removeItem("token");
           navigate("/login");
         } else {
           throw new Error("Failed to fetch incidents.");
@@ -61,12 +58,10 @@ const Dashboard = () => {
     fetchIncidents();
   }, [navigate]);
 
-  
   const handleChange = (e) => {
     setIncident({ ...incident, [e.target.name]: e.target.value });
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -89,7 +84,7 @@ const Dashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setIncidents([...incidents, data]); 
+        setIncidents([...incidents, data]);
         setIncident({ title: "", description: "", location: "", date: "" });
       } else if (response.status === 401 || response.status === 403) {
         setError("Session expired. Please log in again.");
@@ -97,6 +92,33 @@ const Dashboard = () => {
         navigate("/login");
       } else {
         throw new Error("Failed to submit incident.");
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    setError("");
+
+    const token = getToken();
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/incidents/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setIncidents(incidents.filter((inc) => inc.id !== id));
+      } else {
+        throw new Error("Failed to delete incident.");
       }
     } catch (error) {
       setError(error.message);
@@ -151,6 +173,7 @@ const Dashboard = () => {
             <li key={inc.id || inc.title + inc.date}>
               <strong>{inc.title}</strong> - {inc.location} ({inc.date})
               <p>{inc.description}</p>
+              <button onClick={() => handleDelete(inc.id)}>Delete</button>
             </li>
           ))}
         </ul>
