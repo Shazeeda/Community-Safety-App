@@ -31,21 +31,4 @@ bcryptjs
 JSON Web Tokens (JWT)
 dotenv
 
-📁 Project Structure
-bash
-Copy
-Edit
-Community-Safety-App/
-├── client/                 # React frontend
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── services/api.js
-├── server/                 # Express backend
-│   ├── routes/
-│   │   ├── auth.js
-│   │   └── incidents.js
-│   ├── db.js
-│   ├── seed.js
-│   └── server.js
 
