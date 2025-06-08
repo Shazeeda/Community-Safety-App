@@ -62,4 +62,29 @@ const api = {
   },
 };
 
+export const sendMessageToAI = async (message) => {
+  const result = await fetch("http://localhost:5000/api/ai-chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ message }),
+  });
+
+  const data = await result.json();
+  return data.reply;
+};
+
+
+import ChatAssistant from "./components/ChatAssistant";
+
+function App() {
+  return (
+    <div>
+      <ChatAssistant />
+    </div>
+  );
+}
+
+
 export default api;

@@ -22,7 +22,7 @@ const authenticateUser = (req, res, next) => {
   });
 };
 
-router.post("/", authenticateUser, async (req, res) => {
+router.post("/", postauthenticateUser, async (req, res) => {
   const { title, description, location, date } = req.body;
 
   if (!title || !description || !location || !date) {
