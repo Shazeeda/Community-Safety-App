@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-// import { api } from "../services/api";
 
-const API_URL = "http://localhost:3000";
+const API_URL = "http://localhost:8000"; 
 
 const SubmitIncident = () => {
   const [title, setTitle] = useState("");
@@ -14,14 +13,9 @@ const SubmitIncident = () => {
     try {
       setError("");
 
-      const token = localStorage.getItem("token");
+      const token = "securetoken123"; 
 
-      if (!token) {
-        setError("You need to be logged in to submit an incident.");
-        return;
-      }
-
-      const response = await fetch(`${API_URL}/incidents`, {
+      const response = await fetch(`${API_URL}/incident`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,12 +25,6 @@ const SubmitIncident = () => {
       });
 
       const data = await response.json();
-
-      if (response.status === 403) {
-        setError("Invalid token. Please log in again.");
-        localStorage.removeItem("token");
-        return;
-      }
 
       if (!response.ok) {
         throw new Error(data.error || "Something went wrong");
