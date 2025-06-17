@@ -76,15 +76,6 @@ export const sendMessageToAI = async (message) => {
 };
 
 
-import ChatAssistant from "./components/ChatAssistant";
-
-function App() {
-  return (
-    <div>
-      <ChatAssistant />
-    </div>
-  );
-}
 
 
 export default api;

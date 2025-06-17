@@ -5,7 +5,8 @@ import RegisterLogin from "./components/RegisterLogin";
 import IncidentList from "./components/IncidentList";
 import SubmitIncident from "./components/SubmitIncident";
 import Header from "./components/header";
-import Dashboard from "./pages/Dashboard.js";
+import Dashboard from "./pages/Dashboard";
+import ChatAssistant from "./components/ChatAssistant";
 
 function App() {
   return (
@@ -19,10 +20,12 @@ function App() {
           <Route path="/submit" element={<SubmitIncident />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/chat" element={<ChatAssistant />} />
         </Routes>
       </main>
     </>
   );
 }
+
 
 export default App;

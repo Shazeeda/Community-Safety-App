@@ -1,11 +1,12 @@
 const express = require("express");
-const pool = require("../db");
 const router = express.Router();
+const pool = require("../db");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "safety_app";
 
+// 🔒 Auth middleware
 const authenticateUser = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
@@ -22,7 +23,8 @@ const authenticateUser = (req, res, next) => {
   });
 };
 
-router.post("/", postauthenticateUser, async (req, res) => {
+// 🆕 POST: Create new incident
+router.post("/", authenticateUser, async (req, res) => {
   const { title, description, location, date } = req.body;
 
   if (!title || !description || !location || !date) {
@@ -34,28 +36,25 @@ router.post("/", postauthenticateUser, async (req, res) => {
       "INSERT INTO incidents (user_id, title, description, location, date) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [req.user.id, title, description, location, date]
     );
-    return res.status(201).json(result.rows[0]);
+    res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error("Error reporting incident:", err.message);
-    return res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
+// 📥 GET: All incidents (public)
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM incidents ORDER BY id DESC");
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "No incidents found" });
-    }
-
-    return res.json(result.rows);
+    res.json(result.rows);
   } catch (err) {
     console.error("Database query error:", err.message);
-    return res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
+// 👤 GET: Incidents for logged-in user
 router.get("/my-incidents", authenticateUser, async (req, res) => {
   try {
     const result = await pool.query(
@@ -63,19 +62,14 @@ router.get("/my-incidents", authenticateUser, async (req, res) => {
       [req.user.id]
     );
 
-    if (result.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "You have not reported any incidents" });
-    }
-
-    return res.json(result.rows);
+    res.json(result.rows);
   } catch (err) {
     console.error("Database query error:", err.message);
-    return res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
+// ✏️ PUT: Update incident
 router.put("/:id", authenticateUser, async (req, res) => {
   const { title, description, location, date } = req.body;
 
@@ -103,19 +97,16 @@ router.put("/:id", authenticateUser, async (req, res) => {
       [title, description, location, date, req.params.id]
     );
 
-    return res.json(result.rows[0]);
+    res.json(result.rows[0]);
   } catch (err) {
     console.error("Error updating incident:", err.message);
-    return res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
+// 🗑️ DELETE: Remove incident
 router.delete("/:id", authenticateUser, async (req, res) => {
   const { id } = req.params;
-
-  if (!id) {
-    return res.status(400).json({ error: "Incident ID is required" });
-  }
 
   try {
     const incident = await pool.query("SELECT * FROM incidents WHERE id = $1", [
@@ -133,11 +124,10 @@ router.delete("/:id", authenticateUser, async (req, res) => {
     }
 
     await pool.query("DELETE FROM incidents WHERE id = $1", [id]);
-
-    return res.json({ message: "Incident deleted successfully" });
+    res.json({ message: "Incident deleted successfully" });
   } catch (error) {
-    console.error("Error deleting incident:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error deleting incident:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
