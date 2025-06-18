@@ -1,48 +1,25 @@
-# Security Policy
+Security Policy
 
 This application was built with secure, real-world software development in mind — designed to demonstrate fullstack security best practices for both frontend and backend architecture.
 
+-CORS Protection
+Enforced via FastAPI CORSMiddleware
+Only whitelisted origins (e.g., localhost:3000) are allowed
 
-## Security Features Implemented
+-Token-Based Authorization (Frontend-Ready)
+React sends Bearer tokens from localStorage
+Backend supports JWT setup using python-jose
 
-### 1. **CORS Protection**
-- CORS is enforced using FastAPI’s `CORSMiddleware`
-- Only requests from whitelisted origins (e.g., `http://localhost:3000`, `http://localhost:3002`) are accepted
-- Prevents unwanted cross-origin attacks and browser-executed threats
+-Input Validation
+All data validated with Pydantic models
+Blocks malformed or unsafe requests
 
-### 2. **Token-Based Authorization (Frontend Ready)**
-- The React frontend sends requests with a `Bearer <token>` header from `localStorage`
-- Backend is prepped for future JWT validation using `python-jose` and `fastapi.security`
-- Unauthorized requests are safely rejected with proper status codes
+-Modular Route Security
+Routes are cleanly separated
+Easy to apply auth rules (e.g., admin-only access)
 
-### 3. **Input Validation & Sanitization**
-- All incoming data is strictly validated using Pydantic models (`models.py`)
-- Prevents malformed payloads or injection-style attacks
-- Ensures data shape, type safety, and required field enforcement
-
-### 4. **Modular Route Security**
-- All routes are split by responsibility in `routes.py`
-- Secure practices can be scoped per route as needed (e.g., requiring tokens, admin-only access, etc.)
-
-### 5. **Environment Variable Protection**
-- All secrets (like auth tokens or database strings) are stored in `.env`
-- `.gitignore` prevents `.env` from ever being committed to version control
-- This aligns with 12-factor security principles
-
-
-
-##  Future Security Enhancements
-
-These are planned or easily supported:
-
-- Full JWT token validation with expiry, issuer, and subject checks
-- OAuth2 authentication (Google, GitHub, etc.)
-- Role-based access control (RBAC)
-- HTTPS enforcement via custom domain + AWS ACM certificate
-- Rate limiting + logging via API Gateway (AWS)
-
----
-
-## 📢 Reporting Vulnerabilities
+-Secret Management
+.env file stores sensitive data
+Git-ignored to prevent leaks (12-factor compliant)
 
 > Security is not a feature — it’s a foundation.
