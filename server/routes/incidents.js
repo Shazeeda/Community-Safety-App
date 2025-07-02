@@ -6,7 +6,6 @@ require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "safety_app";
 
-// 🔒 Auth middleware
 const authenticateUser = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
@@ -23,7 +22,6 @@ const authenticateUser = (req, res, next) => {
   });
 };
 
-// 🆕 POST: Create new incident
 router.post("/", authenticateUser, async (req, res) => {
   const { title, description, location, date } = req.body;
 
@@ -43,7 +41,6 @@ router.post("/", authenticateUser, async (req, res) => {
   }
 });
 
-// 📥 GET: All incidents (public)
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM incidents ORDER BY id DESC");
@@ -54,7 +51,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// 👤 GET: Incidents for logged-in user
 router.get("/my-incidents", authenticateUser, async (req, res) => {
   try {
     const result = await pool.query(
@@ -69,7 +65,6 @@ router.get("/my-incidents", authenticateUser, async (req, res) => {
   }
 });
 
-// ✏️ PUT: Update incident
 router.put("/:id", authenticateUser, async (req, res) => {
   const { title, description, location, date } = req.body;
 
@@ -104,7 +99,6 @@ router.put("/:id", authenticateUser, async (req, res) => {
   }
 });
 
-// 🗑️ DELETE: Remove incident
 router.delete("/:id", authenticateUser, async (req, res) => {
   const { id } = req.params;
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const API_URL = "http://localhost:8000"; 
+const API_URL = "http://localhost:3000"; 
 
 const SubmitIncident = () => {
   const [title, setTitle] = useState("");
