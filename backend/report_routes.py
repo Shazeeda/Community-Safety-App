@@ -30,6 +30,7 @@ async def submit_report(
         raise HTTPException(status_code=403, detail="user_id must match authenticated user")
 
     request_id = getattr(request.state, "request_id", "unknown")
+
     logger.info(
         "report_submitted",
         extra={
@@ -42,8 +43,10 @@ async def submit_report(
         },
     )
 
+    report_id = len(REPORTS) + 1
 
     record = {
+        "report_id": report_id,
         "user_id": report.user_id,
         "location": report.location,
         "message": report.message,
@@ -57,8 +60,9 @@ async def submit_report(
 
     return {
         "status": "received",
+        "report_id": report_id,
         "auto_response": response or "Thanks for your report. Stay safe and connected!",
         "stored": True,
         "report_count": len(REPORTS),
-        "request_id": request_id,  
+        "request_id": request_id,
     }
