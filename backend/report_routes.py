@@ -1,12 +1,14 @@
 import time
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field, ConfigDict
 
 from backend.utils.auto_response import generate_auto_response
 from backend.auth import get_current_user
 from backend.store import REPORTS
+from backend.logging_utils import logger
 
 router = APIRouter()
+
 
 class ReportCreate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
@@ -17,10 +19,29 @@ class ReportCreate(BaseModel):
     category: str | None = None
     severity: int | None = Field(default=None, ge=1, le=5)
 
+
 @router.post("/reports")
-async def submit_report(report: ReportCreate, user=Depends(get_current_user)):
+async def submit_report(
+    report: ReportCreate,
+    request: Request,
+    user=Depends(get_current_user),
+):
     if report.user_id != user["user_id"]:
         raise HTTPException(status_code=403, detail="user_id must match authenticated user")
+
+    request_id = getattr(request.state, "request_id", "unknown")
+    logger.info(
+        "report_submitted",
+        extra={
+            "request_id": request_id,
+            "user_id": user["user_id"],
+            "role": user["role"],
+            "location": report.location,
+            "category": report.category or "uncategorized",
+            "severity": report.severity or 1,
+        },
+    )
+
 
     record = {
         "user_id": report.user_id,
@@ -39,4 +60,5 @@ async def submit_report(report: ReportCreate, user=Depends(get_current_user)):
         "auto_response": response or "Thanks for your report. Stay safe and connected!",
         "stored": True,
         "report_count": len(REPORTS),
+        "request_id": request_id,  
     }
