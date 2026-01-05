@@ -1,4 +1,8 @@
+import json
+import os
 import time
+
+import boto3
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -8,6 +12,20 @@ from backend.store import REPORTS
 from backend.logging_utils import logger
 
 router = APIRouter()
+
+REPORT_POSTPROCESS_QUEUE_URL = os.getenv("REPORT_POSTPROCESS_QUEUE_URL")
+sqs = boto3.client("sqs", region_name=os.getenv("AWS_REGION", "us-east-1"))
+
+
+def build_report_created_message(*, report_id: int, request_id: str, actor_user_id: int) -> dict:
+    return {
+        "event_type": "REPORT_CREATED",
+        "report_id": report_id,
+        "request_id": request_id,
+        "actor_user_id": actor_user_id,
+        "occurred_at": int(time.time()),
+        "schema_version": 1,
+    }
 
 
 class ReportCreate(BaseModel):
@@ -56,6 +74,27 @@ async def submit_report(
     }
     REPORTS.append(record)
 
+    sqs_message = build_report_created_message(
+        report_id=report_id,
+        request_id=request_id,
+        actor_user_id=user["user_id"],
+    )
+
+    if not REPORT_POSTPROCESS_QUEUE_URL:
+        logger.warning(
+            "report_postprocess_queue_url_missing",
+            extra={"request_id": request_id, "report_id": report_id},
+        )
+    else:
+        sqs.send_message(
+            QueueUrl=REPORT_POSTPROCESS_QUEUE_URL,
+            MessageBody=json.dumps(sqs_message),
+        )
+        logger.info(
+            "report_postprocess_sent_to_sqs",
+            extra={"request_id": request_id, "report_id": report_id, "queue_url": REPORT_POSTPROCESS_QUEUE_URL},
+        )
+
     response = generate_auto_response(report.message)
 
     return {
@@ -65,4 +104,5 @@ async def submit_report(
         "stored": True,
         "report_count": len(REPORTS),
         "request_id": request_id,
+        "postprocess_event": sqs_message,
     }
