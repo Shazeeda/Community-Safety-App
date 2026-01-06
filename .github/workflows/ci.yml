@@ -27,14 +27,14 @@ jobs:
 
       - name: Lint (ruff)
         run: |
-          ruff check python_api backend
+          ruff check backend python_api --exclude python_api/package,python_api/venv
 
       - name: Tests
         env:
           AWS_REGION: us-east-1
           REPORT_POSTPROCESS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/058264380187/community-safety-report-postprocess"
         run: |
-          pytest -q
+          pytest -q python_api/tests
 
   build-lambda-zip:
     runs-on: ubuntu-latest
@@ -63,4 +63,3 @@ jobs:
         with:
           name: backend_lambda_zip
           path: build/backend_lambda.zip
-
