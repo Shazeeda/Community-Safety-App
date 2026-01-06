@@ -3,11 +3,10 @@ import os
 import time
 
 import boto3
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Request
 from pydantic import BaseModel, Field, ConfigDict
 
 from backend.utils.auto_response import generate_auto_response
-from backend.auth import get_current_user
 from backend.store import REPORTS
 from backend.logging_utils import logger
 
@@ -42,19 +41,16 @@ class ReportCreate(BaseModel):
 async def submit_report(
     report: ReportCreate,
     request: Request,
-    user=Depends(get_current_user),
 ):
-    if report.user_id != user["user_id"]:
-        raise HTTPException(status_code=403, detail="user_id must match authenticated user")
-
     request_id = getattr(request.state, "request_id", "unknown")
 
+   
     logger.info(
         "report_submitted",
         extra={
             "request_id": request_id,
-            "user_id": user["user_id"],
-            "role": user["role"],
+            "user_id": report.user_id,
+            "role": "dev",
             "location": report.location,
             "category": report.category or "uncategorized",
             "severity": report.severity or 1,
@@ -77,7 +73,7 @@ async def submit_report(
     sqs_message = build_report_created_message(
         report_id=report_id,
         request_id=request_id,
-        actor_user_id=user["user_id"],
+        actor_user_id=report.user_id,
     )
 
     if not REPORT_POSTPROCESS_QUEUE_URL:
@@ -86,14 +82,29 @@ async def submit_report(
             extra={"request_id": request_id, "report_id": report_id},
         )
     else:
-        sqs.send_message(
-            QueueUrl=REPORT_POSTPROCESS_QUEUE_URL,
-            MessageBody=json.dumps(sqs_message),
-        )
         logger.info(
-            "report_postprocess_sent_to_sqs",
-            extra={"request_id": request_id, "report_id": report_id, "queue_url": REPORT_POSTPROCESS_QUEUE_URL},
+            "sending_to_sqs",
+            extra={
+                "queue_url": REPORT_POSTPROCESS_QUEUE_URL,
+                "report_id": report_id,
+                "request_id": request_id,
+            },
         )
+
+        try:
+            sqs.send_message(
+                QueueUrl=REPORT_POSTPROCESS_QUEUE_URL,
+                MessageBody=json.dumps(sqs_message),
+            )
+            logger.info(
+                "report_postprocess_sent_to_sqs",
+                extra={"request_id": request_id, "report_id": report_id},
+            )
+        except Exception:
+            logger.exception(
+                "sqs_send_failed",
+                extra={"request_id": request_id, "report_id": report_id},
+            )
 
     response = generate_auto_response(report.message)
 

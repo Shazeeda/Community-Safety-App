@@ -33,4 +33,4 @@ app.include_router(metrics_router)
 
 handler = Mangum(app)
 
-logger.info("Lambda handler successfully initialized")
+logger.info("Lambda handler successfully initialized", extra={"request_id": "startup"})
