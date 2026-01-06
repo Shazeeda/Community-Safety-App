@@ -4,6 +4,9 @@ exclude = [
   ".venv",
   "venv",
   "__pycache__",
-  "python_api/package",  
-  "python_api/venv",      
+  "node_modules",
+  "python_api/venv",
+  "python_api/package",
+  "deploy_folder",
+  "build",
 ]
