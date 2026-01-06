@@ -1,8 +1,7 @@
-node_modules
-.env
+# Terraform
+**/.terraform/
 
-deploy_folder/
-.venv/
-__pycache__/
-*.zip
-*.pyc
+# Terraform state (never commit)
+**/terraform.tfstate
+**/terraform.tfstate.*
+node_modules
