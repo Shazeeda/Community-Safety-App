@@ -1,23 +1,27 @@
-# Terraform
-**/.terraform/
-
-# Terraform state (never commit)
-**/terraform.tfstate
-**/terraform.tfstate.*
-node_modules
-
 # Python
 __pycache__/
 *.pyc
+.env
+.venv/
+venv/
 
-# Build artifacts
-*.zip
+# Local / build artifacts (do NOT commit)
+python_api/package/
+python_api/venv/
+python_api/.venv/
+python_api/build/
 build/
-deploy_folder/
-function.zip
-backend_lambda.zip
+build_lambda/
+*.zip
 
-# Terraform
+# Terraform local state
 **/.terraform/
-**/terraform.tfstate
-**/terraform.tfstate.*
+**/.terraform.lock.hcl
+**/*.tfstate
+**/*.tfstate.backup
+
+# Node
+node_modules/
+
+# macOS
+.DS_Store

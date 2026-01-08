@@ -4,3 +4,10 @@ python-jose
 passlib[bcrypt]
 sqlalchemy
 psycopg2-binary
+
+mangum
+
+pytest
+httpx
+boto3
+PyJWT

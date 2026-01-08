@@ -23,7 +23,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r python_api/requirements.txt
-          pip install pytest ruff
+          pip install ruff
 
       - name: Lint (ruff)
         run: |
@@ -34,7 +34,8 @@ jobs:
           AWS_REGION: us-east-1
           REPORT_POSTPROCESS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/058264380187/community-safety-report-postprocess"
         run: |
-          pytest -q python_api/tests
+          cd python_api
+          pytest -q tests
 
   build-lambda-zip:
     runs-on: ubuntu-latest

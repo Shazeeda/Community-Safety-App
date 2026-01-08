@@ -9,6 +9,9 @@ from backend.metrics_routes import router as metrics_router
 from backend.logging_utils import get_request_id, logger
 
 app = FastAPI()
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 @app.middleware("http")
 async def add_request_id(request: Request, call_next):
