@@ -21,13 +21,12 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Dead-letter queue (DLQ)
 resource "aws_sqs_queue" "report_postprocess_dlq" {
   name                      = "community-safety-report-postprocess-dlq"
   message_retention_seconds = 1209600 # 14 days
 }
 
-# Main queue
+
 resource "aws_sqs_queue" "report_postprocess" {
   name                       = "community-safety-report-postprocess"
   visibility_timeout_seconds = 30
