@@ -23,7 +23,6 @@ class Case(NamedTuple):
 
 
 def cases() -> Iterable[Case]:
-    # Gt, Ge, Lt, Le
     yield Case(Annotated[int, at.Gt(4)], (5, 6, 1000), (4, 0, -1))
     yield Case(Annotated[float, at.Gt(0.5)], (0.6, 0.7, 0.8, 0.9), (0.5, 0.0, -0.1))
     yield Case(
@@ -66,7 +65,6 @@ def cases() -> Iterable[Case]:
         [datetime(2000, 1, 2), datetime(2000, 1, 3)],
     )
 
-    # Interval
     yield Case(Annotated[int, at.Interval(gt=4)], (5, 6, 1000), (4, 0, -1))
     yield Case(Annotated[int, at.Interval(gt=4, lt=10)], (5, 6), (4, 10, 1000, 0, -1))
     yield Case(Annotated[float, at.Interval(ge=0.5, le=1)], (0.5, 0.9, 1), (0.49, 1.1))
@@ -79,7 +77,6 @@ def cases() -> Iterable[Case]:
     yield Case(Annotated[int, at.MultipleOf(multiple_of=3)], (0, 3, 9), (1, 2, 4))
     yield Case(Annotated[float, at.MultipleOf(multiple_of=0.5)], (0, 0.5, 1, 1.5), (0.4, 1.1))
 
-    # lengths
 
     yield Case(Annotated[str, at.MinLen(3)], ('123', '1234', 'x' * 10), ('', '1', '12'))
     yield Case(Annotated[str, at.Len(3)], ('123', '1234', 'x' * 10), ('', '1', '12'))
@@ -98,7 +95,6 @@ def cases() -> Iterable[Case]:
     yield Case(Annotated[Set[int], at.Len(2, 3)], ({1, 2}, {1, 2, 3}), (set(), {1}, {1, 2, 3, 4}))
     yield Case(Annotated[Tuple[int, ...], at.Len(2, 3)], ((1, 2), (1, 2, 3)), ((), (1,), (1, 2, 3, 4)))
 
-    # Timezone
 
     yield Case(
         Annotated[datetime, at.Timezone(None)], [datetime(2000, 1, 1)], [datetime(2000, 1, 1, tzinfo=timezone.utc)]
@@ -117,11 +113,9 @@ def cases() -> Iterable[Case]:
         [datetime(2000, 1, 1), datetime(2000, 1, 1, tzinfo=timezone(timedelta(hours=6)))],
     )
 
-    # Quantity
 
     yield Case(Annotated[float, at.Unit(unit='m')], (5, 4.2), ('5m', '4.2m'))
 
-    # predicate types
 
     yield Case(at.LowerCase[str], ['abc', 'foobar'], ['', 'A', 'Boom'])
     yield Case(at.UpperCase[str], ['ABC', 'DEFO'], ['', 'a', 'abc', 'AbC'])
@@ -137,13 +131,10 @@ def cases() -> Iterable[Case]:
     yield Case(at.IsInfinite[float], [math.inf], [math.nan, 1.23])
     yield Case(at.IsNotInfinite[float], [math.nan, 1.23], [math.inf])
 
-    # check stacked predicates
     yield Case(at.IsInfinite[Annotated[float, at.Predicate(lambda x: x > 0)]], [math.inf], [-math.inf, 1.23, math.nan])
 
-    # doc
     yield Case(Annotated[int, at.doc("A number")], [1, 2], [])
 
-    # custom GroupedMetadata
     class MyCustomGroupedMetadata(at.GroupedMetadata):
         def __iter__(self) -> Iterator[at.Predicate]:
             yield at.Predicate(lambda x: float(x).is_integer())
