@@ -36,7 +36,7 @@ app.use("/search", searchRoutes);
 
 
 app.get("/", (req, res) => {
-  res.send("🚀 Server is running locally!");
+  res.send("Server is running locally!");
 });
 
 
