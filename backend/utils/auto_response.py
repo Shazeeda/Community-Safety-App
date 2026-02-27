@@ -3,7 +3,7 @@ from __future__ import annotations
 def generate_auto_response(message: str) -> str:
     """
     Simple placeholder auto-response generator.
-    You can replace this logic later with rules/LLM/etc.
+
     """
     msg = (message or "").lower()
 
