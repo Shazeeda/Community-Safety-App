@@ -1,157 +1,92 @@
-The Community Safety App is a full-stack project designed to allow community members to submit and track local safety reports.
-The focus of this project is backend architecture, cloud-native deployment, and production-style reliability practices rather than UI complexity.
-It was built to deepen my experience with API design, AWS serverless architecture, infrastructure-as-code, and operational debugging in a real-world environment.
+Community Safety App
 
-Architecture & Engineering Overview
-This application follows a serverless architecture designed for scalability, reliability, and operational simplicity.
+The Community Safety App is a full stack application that allows users to submit and track local safety reports. The primary focus of this project is backend architecture, serverless deployment, and production level reliability rather than interface complexity. It was built to strengthen my experience with API design, AWS serverless systems, infrastructure as code, and operational debugging.
 
-High-Level Flow
+Architecture
+
+The application follows a serverless architecture designed for scalability and operational simplicity.
+
+High Level Flow
+
 Client Request
-      ↓
-AWS API Gateway
-      ↓
-AWS Lambda (FastAPI backend)
-      ↓
-Request Validation & Processing
-      ↓
-CloudWatch Logging & Monitoring
+API Gateway
+Lambda running FastAPI backend
+Request validation and processing
+CloudWatch logging
 
-** Design Principles Applied **
-- Stateless compute (Lambda)
-- Strict request validation (Pydantic)
-- Least-privilege IAM permissions
-- Infrastructure defined declaratively
-- Observability-first debugging
-- Incremental deployment strategy
-This architecture supports automatic scaling, reduced operational overhead, and reliable deployment practices.
+Design Principles
 
-** What the App Does **
-- Users can submit local safety reports with a description and address
-- Reports are processed through a FastAPI backend
-- The API is exposed publicly via AWS API Gateway
-- The backend runs serverlessly using AWS Lambda
-- Dependencies are packaged via Lambda Layers
-The system is built to demonstrate real-world backend engineering practices using AWS-native services.
+Stateless compute using Lambda
+Strict schema validation using Pydantic
+Least privilege IAM configuration
+Declarative infrastructure management with Terraform
+Observability driven debugging
+Incremental deployment strategy
 
-** Backend API Design **
-The backend is implemented using FastAPI.
-Key implementation principles:
+Core Functionality
 
-- RESTful endpoint structure (POST /incident)
-- Strict request validation with Pydantic models
-- Consistent JSON response formatting
-- Clear separation of route definitions and business logic
-- Error handling designed for predictable client behavior
-Validation occurs early to prevent malformed data from entering the system.
+Users submit safety reports containing structured information such as description and location.
+Requests are validated and processed by a FastAPI backend.
+The API is exposed publicly through API Gateway and executed on AWS Lambda.
+Dependencies are packaged using Lambda Layers to ensure runtime compatibility.
 
-** AWS Cloud Architecture **
-AWS Lambda
+Backend Design
 
-- Serverless compute for backend execution
-- Scales automatically based on demand
-- Tuned memory and timeout configurations
-- Uses execution roles following least-privilege principles
+The backend is implemented with a focus on structured data handling and predictable system behavior.
 
-** AWS API Gateway **
+RESTful endpoint design using POST incident
+Early request validation with Pydantic models
+Consistent JSON response structure
+Separation of routing and business logic
+Controlled error handling to prevent malformed data propagation
 
-- Public HTTP interface for backend endpoints
-- Routes client requests securely to Lambda
-- Handles integration and request forwarding
+AWS Implementation
 
-** IAM (Identity & Access Management) **
-IAM roles are configured to:
+Lambda provides scalable compute with tuned memory and timeout settings.
+API Gateway routes and secures external requests.
+IAM roles restrict service permissions according to least privilege principles.
+CloudWatch captures runtime logs and execution metrics for monitoring and debugging.
 
-- Grant Lambda only required permissions
-- Secure communication between services
-- Enforce least-privilege access control
+CI and Deployment
 
-** CloudWatch **
-CloudWatch is used for:
+GitHub Actions enforces quality checks on every push.
 
-- Runtime logs
-- Error traces
-- Duration monitoring
-- Debugging deployment issues
-- Observing Lambda execution behavior
-Operational debugging always begins with structured logs and metrics rather than guesswork.
+Ruff runs lint validation
+Pytest verifies API startup
+A Lambda deployment artifact is built
 
-** Docker & Dependency Packaging **
-Docker was used to package Python dependencies in a Linux-compatible format for AWS Lambda.
+This ensures the codebase remains deployable and validated prior to release.
 
-This ensured:
-- Compiled dependencies (like pydantic_core) matched AWS runtime requirements
-- Consistent packaging structure
-- Reliable layer deployment
+Infrastructure as Code
 
-This helped simulate the Lambda environment locally before deployment.
+Infrastructure is defined declaratively using Terraform.
 
-** Engineering Challenges & Resolutions **
-During development, I encountered runtime import errors related to compiled dependencies within Lambda layers.
-Resolution involved:
+Managed resources include Lambda, API Gateway, and IAM roles.
+This approach provides version controlled infrastructure, repeatable environments, and controlled change management.
 
-- Rebuilding dependencies inside a Docker-based Linux environment
-- Verifying Lambda layer folder structure compliance
-- Iterating through version-controlled layer updates
-- Using CloudWatch logs to trace runtime execution failures
-This process strengthened my understanding of serverless deployment mechanics and runtime compatibility.
+Engineering Challenge
 
-** CI/CD & Deployment Strategy **
-The project uses GitHub Actions to enforce quality gates.
-
-On each push:
-- Ruff runs linting checks
-- Pytest smoke tests validate API startup
-- A Lambda deployment artifact is built
-
-This ensures:
-- Code remains deployable at all times
-- Broken builds are blocked automatically
-- Changes are validated before reaching AWS
-Deployment artifacts are versioned and reproducible.
-
-** Infrastructure as Code (Terraform) **
-Infrastructure is managed declaratively using Terraform.
-Defined resources include:
-
-- AWS Lambda
-- API Gateway
-- IAM roles and policies
-
-Benefits of this approach:
-- Version-controlled infrastructure
-- Repeatable environment setup
-- Reduced configuration drift
-- Safer infrastructure updates
-- Clear audit trail of changes
-Infrastructure changes follow the same reviewable workflow as application code.
-
-** Lessons Learned **
-- Lambda layers must follow strict folder structure rules
-- Compiled dependencies require Linux-compatible packaging
-- Docker improves runtime consistency
-- CloudWatch logs are essential for debugging serverless systems
-- Infrastructure-as-code reduces manual configuration errors
-- Incremental deployments improve system reliability
-
+A runtime failure occurred due to compiled dependency incompatibility within the Lambda layer. The issue was resolved by rebuilding dependencies inside a Docker based Linux environment to match the AWS runtime and validating layer structure compliance. CloudWatch logs were used to confirm resolution.
 
 Technologies Used
-Backend 
-- Python 3.9
-- FastAPI
-- Pydantic
 
-Cloud & Infrastructure
-- AWS Lambda
-- API Gateway
-- IAM
-- CloudWatch
-- Terraform
+Backend
+Python
+FastAPI
+Pydantic
+
+Cloud
+AWS Lambda
+API Gateway
+IAM
+CloudWatch
+Terraform
 
 DevOps
-- GitHub Actions
-- Docker
-- Ruff
-- Pytest
+GitHub Actions
+Docker
+Ruff
+Pytest
 
 
 
