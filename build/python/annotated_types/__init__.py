@@ -60,9 +60,6 @@ __version__ = '0.7.0'
 T = TypeVar('T')
 
 
-# arguments that start with __ are considered
-# positional only
-# see https://peps.python.org/pep-0484/#positional-only-arguments
 
 
 class SupportsGt(Protocol):
@@ -189,16 +186,15 @@ class GroupedMetadata(Protocol):
         ...
 
     if not TYPE_CHECKING:
-        __slots__ = ()  # allow subclasses to use slots
+        __slots__ = ()  
 
         def __init_subclass__(cls, *args: Any, **kwargs: Any) -> None:
-            # Basic ABC like functionality without the complexity of an ABC
             super().__init_subclass__(*args, **kwargs)
             if cls.__iter__ is GroupedMetadata.__iter__:
                 raise TypeError("Can't subclass GroupedMetadata without implementing __iter__")
 
-        def __iter__(self) -> Iterator[object]:  # noqa: F811
-            raise NotImplementedError  # more helpful than "None has no attribute..." type errors
+        def __iter__(self) -> Iterator[object]: 
+            raise NotImplementedError  
 
 
 @dataclass(frozen=True, **KW_ONLY, **SLOTS)
@@ -350,7 +346,7 @@ class Predicate(BaseMetadata):
             namespace := getattr(self.func.__self__, "__name__", None)
         ):
             return f"{self.__class__.__name__}({namespace}.{self.func.__name__})"
-        if isinstance(self.func, type(str.isascii)):  # method descriptor
+        if isinstance(self.func, type(str.isascii)):  
             return f"{self.__class__.__name__}({self.func.__qualname__})"
         return f"{self.__class__.__name__}({self.func.__name__})"
 
@@ -370,20 +366,20 @@ LowerCase = Annotated[_StrType, Predicate(str.islower)]
 Return True if the string is a lowercase string, False otherwise.
 
 A string is lowercase if all cased characters in the string are lowercase and there is at least one cased character in the string.
-"""  # noqa: E501
+"""  
 UpperCase = Annotated[_StrType, Predicate(str.isupper)]
 """
 Return True if the string is an uppercase string, False otherwise.
 
 A string is uppercase if all cased characters in the string are uppercase and there is at least one cased character in the string.
-"""  # noqa: E501
+"""  
 IsDigit = Annotated[_StrType, Predicate(str.isdigit)]
-IsDigits = IsDigit  # type: ignore  # plural for backwards compatibility, see #63
+IsDigits = IsDigit  
 """
 Return True if the string is a digit string, False otherwise.
 
 A string is a digit string if all characters in the string are digits and there is at least one character in the string.
-"""  # noqa: E501
+"""  
 IsAscii = Annotated[_StrType, Predicate(str.isascii)]
 """
 Return True if all characters in the string are ASCII, False otherwise.
@@ -406,11 +402,11 @@ IsNotInfinite = Annotated[_NumericType, Predicate(Not(math.isinf))]
 """Return True if x is neither a positive or negative infinity, and False otherwise."""
 
 try:
-    from typing_extensions import DocInfo, doc  # type: ignore [attr-defined]
+    from typing_extensions import DocInfo, doc  
 except ImportError:
 
     @dataclass(frozen=True, **SLOTS)
-    class DocInfo:  # type: ignore [no-redef]
+    class DocInfo:  
         """ "
         The return value of doc(), mainly to be used by tools that want to extract the
         Annotated documentation at runtime.
