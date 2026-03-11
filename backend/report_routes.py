@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from backend.utils.auto_response import generate_auto_response
 from backend.store import REPORTS
 from backend.logging_utils import logger
+from backend.automation.report_automation import assign_priority, generate_metadata
 
 router = APIRouter()
 
@@ -38,26 +39,12 @@ class ReportCreate(BaseModel):
 
 
 @router.post("/reports")
-async def submit_report(
-    report: ReportCreate,
-    request: Request,
-):
+async def submit_report(report: ReportCreate, request: Request):
     request_id = getattr(request.state, "request_id", "unknown")
-
-   
-    logger.info(
-        "report_submitted",
-        extra={
-            "request_id": request_id,
-            "user_id": report.user_id,
-            "role": "dev",
-            "location": report.location,
-            "category": report.category or "uncategorized",
-            "severity": report.severity or 1,
-        },
-    )
-
     report_id = len(REPORTS) + 1
+
+    metadata = generate_metadata()
+    priority = assign_priority(report.message)
 
     record = {
         "report_id": report_id,
@@ -66,9 +53,26 @@ async def submit_report(
         "message": report.message,
         "category": report.category or "uncategorized",
         "severity": report.severity or 1,
-        "created_at": int(time.time()),
+        "priority": priority,
+        **metadata,
     }
+
     REPORTS.append(record)
+
+    logger.info(
+        "report_submitted",
+        extra={
+            "request_id": request_id,
+            "report_id": report_id,
+            "user_id": report.user_id,
+            "role": "dev",
+            "location": report.location,
+            "category": record["category"],
+            "severity": record["severity"],
+            "priority": priority,
+            "status": metadata["status"],
+        },
+    )
 
     sqs_message = build_report_created_message(
         report_id=report_id,
@@ -111,9 +115,11 @@ async def submit_report(
     return {
         "status": "received",
         "report_id": report_id,
+        "priority": priority,
         "auto_response": response or "Thanks for your report. Stay safe and connected!",
         "stored": True,
         "report_count": len(REPORTS),
         "request_id": request_id,
         "postprocess_event": sqs_message,
+        "report": record,
     }
